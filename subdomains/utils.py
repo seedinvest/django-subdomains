@@ -1,8 +1,7 @@
 import functools
-try:
-    from urlparse import urlunparse
-except ImportError:
-    from urllib.parse import urlunparse
+import re
+
+from urlparse import urlunparse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -51,7 +50,12 @@ def reverse(viewname, subdomain=None, scheme=None, args=None, kwargs=None,
     :param kwargs: named arguments used for URL reversing
     :param current_app: hint for the currently executing application
     """
-    urlconf = settings.SUBDOMAIN_URLCONFS.get(subdomain, settings.ROOT_URLCONF)
+    urlconf = None
+    for pattern, urls in settings.SUBDOMAIN_URLCONFS:
+        matches = re.match(pattern, subdomain)
+        if matches:
+            urlconf = urls
+            break
 
     domain = get_domain()
     if subdomain is not None:
