@@ -39,9 +39,10 @@ class SubdomainMiddleware(object):
             request.subdomain = matches.group('subdomain')
         else:
             request.subdomain = getattr(settings, 'CURRENT_SUBDOMAIN', None)
-            logger.warning('The host %s does not belong to the domain %s, '
-                'unable to identify the subdomain for this request',
-                request.get_host(), domain)
+            if not request.subdomain:
+                logger.warning('The host %s does not belong to the domain %s, '
+                    'unable to identify the subdomain for this request',
+                    request.get_host(), domain)
 
 
 class SubdomainURLRoutingMiddleware(SubdomainMiddleware):
