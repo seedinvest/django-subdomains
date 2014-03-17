@@ -38,7 +38,7 @@ class SubdomainMiddleware(object):
         if matches:
             request.subdomain = matches.group('subdomain')
         else:
-            request.subdomain = None
+            request.subdomain = getattr(settings, 'CURRENT_SUBDOMAIN', None)
             logger.warning('The host %s does not belong to the domain %s, '
                 'unable to identify the subdomain for this request',
                 request.get_host(), domain)
@@ -68,12 +68,12 @@ class SubdomainURLRoutingMiddleware(SubdomainMiddleware):
                         self.additional_view_kwargs = matches.groupdict()
                         urlconf = urls
                         break
-                    
+
             if urlconf is not None:
                 logger.debug("Using urlconf %s for subdomain: %s",
                     repr(urlconf), repr(subdomain))
                 request.urlconf = urlconf
-    
+
     def process_view(self, request, view, args, kwargs):
         kwargs.update(self.additional_view_kwargs)
 
